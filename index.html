@@ -1,0 +1,2398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Select Components — Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Page / Theme ── */
+    :root {
+      --bg: #f0f0f7;
+      --surface: #ffffff;
+      --surface-2: #f7f7fc;
+      --border: #e2e2ee;
+      --border-hover: #c0c0d8;
+      --accent: #6556e8;
+      --accent-glow: rgba(101,86,232,.14);
+      --accent-dim: rgba(101,86,232,.07);
+      --text-primary: #1a1a2e;
+      --text-secondary: #606080;
+      --text-muted: #a0a0bc;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --code-bg: #13131a;
+      --code-surface: #1c1c26;
+      --code-border: #2a2a38;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 24px 80px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px;
+      opacity: .6;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(101,86,232,.1) 0%, transparent 70%);
+      top: -100px;
+      left: -100px;
+      pointer-events: none;
+    }
+
+    /* ── Card ── */
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 680px;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.04) inset,
+        0 24px 64px rgba(101,86,232,.10),
+        0 4px 16px rgba(0,0,0,.06);
+      overflow: visible;
+    }
+
+    .card-top { padding: 32px 36px 0; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(124,106,247,.25);
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    @keyframes popIn { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -.02em;
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+
+    h1 span { color: var(--text-secondary); font-weight: 300; }
+
+    /* ── Main Tabs ── */
+    .tabs-nav {
+      display: flex;
+      gap: 2px;
+      border-bottom: 1px solid var(--border);
+      padding: 0 36px;
+      margin: 0 -1px;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+      font-family: 'DM Sans', sans-serif;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .tab-btn svg { width:14px; height:14px; flex-shrink:0; }
+    .tab-btn:hover { color: var(--text-secondary); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-dim); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Demo Panel ── */
+    .demo-panel { padding: 32px 36px 36px; }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+      margin: 24px 0;
+    }
+
+    .form-group { margin-bottom: 20px; }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    label .label-icon { width:14px; height:14px; opacity:.6; }
+
+    /* ── Section Label ── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 20px;
+    }
+
+    .section-label::before,
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .section-label span {
+      white-space: nowrap;
+      padding: 2px 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+    }
+
+    /* ── Single Select (Searchable) ── */
+    .searchable-select { position: relative; }
+
+    .select-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+      user-select: none;
+      gap: 10px;
+    }
+
+    .select-trigger:hover { border-color: var(--border-hover); background: #f2f2f9; }
+
+    .searchable-select.open .select-trigger {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      border-bottom-color: var(--surface-2);
+    }
+
+    .trigger-text {
+      font-size: 14px;
+      color: var(--text-primary);
+      font-weight: 400;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .trigger-text.placeholder { color: var(--text-muted); }
+
+    .trigger-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .selected-chip {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(124,106,247,.3);
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .searchable-select.has-value .selected-chip { display: flex; }
+
+    .chevron {
+      width: 16px;
+      height: 16px;
+      color: var(--text-muted);
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1), color .2s;
+      flex-shrink: 0;
+    }
+
+    .searchable-select.open .chevron { transform: rotate(180deg); color: var(--accent); }
+
+    .select-dropdown {
+      position: absolute;
+      top: calc(100% - 1px);
+      left: 0;
+      right: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--accent);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      z-index: 200;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(101,86,232,.10), 0 4px 12px rgba(0,0,0,.08);
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s cubic-bezier(.34,1.2,.64,1);
+    }
+
+    .searchable-select.open .select-dropdown {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .search-wrap {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .search-icon { width:14px; height:14px; color: var(--text-muted); flex-shrink:0; }
+
+    .search-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      caret-color: var(--accent);
+    }
+
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-count { font-size:11px; color: var(--text-muted); font-family:'DM Mono',monospace; flex-shrink:0; }
+
+    .options-list {
+      list-style: none;
+      padding: 6px;
+      margin: 0;
+      max-height: 220px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .options-list::-webkit-scrollbar { width:4px; }
+    .options-list::-webkit-scrollbar-track { background: transparent; }
+    .options-list::-webkit-scrollbar-thumb { background: var(--border); border-radius:2px; }
+
+    .option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: background .15s, color .15s;
+      gap: 8px;
+    }
+
+    .option:hover { background: rgba(101,86,232,.05); color: var(--text-primary); }
+
+    .option.selected { background: var(--accent-dim); color: var(--accent); font-weight:500; }
+
+    .option .option-value {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      flex-shrink: 0;
+    }
+
+    .option.selected .option-value { color: rgba(124,106,247,.5); }
+
+    .option .check-icon { width:14px; height:14px; color: var(--accent); opacity:0; flex-shrink:0; transition: opacity .15s; }
+    .option.selected .check-icon { opacity:1; }
+    .option.hidden { display: none; }
+
+    .no-results {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 12px;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .no-results svg { width:20px; height:20px; opacity:.4; margin-bottom:2px; }
+
+    .select-hidden-input { display: none; }
+
+    /* ── Multi-Select Component ── */
+    .ms-dropdown {
+      position: relative;
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+    }
+
+    .ms-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 46px;
+      padding: 6px 10px 6px 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+      gap: 8px;
+    }
+
+    .ms-trigger:hover { border-color: var(--border-hover); background: #f2f2f9; }
+
+    .ms-trigger.open {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .ms-selected {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      flex: 1;
+      align-items: center;
+      min-height: 28px;
+    }
+
+    .ms-placeholder { color: var(--text-muted); font-size: 14px; }
+
+    .ms-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px 3px 10px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(101,86,232,.22);
+      color: var(--accent);
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+      animation: popIn .15s ease;
+      max-width: 160px;
+    }
+
+    .ms-tag span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .ms-tag .ms-remove {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      transition: background .15s;
+      flex-shrink: 0;
+      color: var(--accent);
+      opacity: .65;
+    }
+
+    .ms-tag .ms-remove:hover { background: rgba(101,86,232,.18); opacity: 1; }
+
+    .ms-count {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      background: var(--accent);
+      color: white;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .ms-arrow {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1), color .2s;
+      flex-shrink: 0;
+    }
+
+    .ms-trigger.open .ms-arrow { transform: rotate(180deg); color: var(--accent); }
+
+    .ms-panel {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-sm);
+      z-index: 200;
+      box-shadow: 0 16px 40px rgba(101,86,232,.10), 0 4px 12px rgba(0,0,0,.08);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: opacity .2s ease, transform .2s cubic-bezier(.34,1.2,.64,1), visibility .2s;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ms-panel.open { opacity:1; visibility: visible; transform: translateY(0); }
+
+    .ms-search {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ms-search-icon { width:13px; height:13px; color: var(--text-muted); flex-shrink:0; }
+
+    .ms-search input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      caret-color: var(--accent);
+    }
+
+    .ms-search input::placeholder { color: var(--text-muted); }
+
+    .ms-select-all {
+      display: flex;
+      align-items: center;
+      padding: 9px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      transition: background .15s;
+      letter-spacing: .03em;
+      user-select: none;
+    }
+
+    .ms-select-all:hover { background: var(--accent-dim); }
+
+    .ms-select-all input {
+      margin-right: 10px;
+      width: 14px;
+      height: 14px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .ms-list {
+      overflow-y: auto;
+      flex: 1;
+      list-style: none;
+      max-height: 200px;
+      padding: 5px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .ms-list::-webkit-scrollbar { width:4px; }
+    .ms-list::-webkit-scrollbar-track { background: transparent; }
+    .ms-list::-webkit-scrollbar-thumb { background: var(--border); border-radius:2px; }
+
+    .ms-option {
+      display: flex;
+      align-items: center;
+      padding: 9px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: background .15s, color .15s;
+    }
+
+    .ms-option:hover { background: rgba(101,86,232,.05); color: var(--text-primary); }
+
+    .ms-option.selected { background: var(--accent-dim); color: var(--accent); font-weight:500; }
+
+    .ms-option.highlighted { background: rgba(101,86,232,.08); }
+
+    .ms-option input[type="checkbox"] {
+      margin-right: 10px;
+      width: 14px;
+      height: 14px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .ms-option span { flex:1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .ms-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 12px;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .ms-empty svg { width:20px; height:20px; opacity:.4; margin-bottom:2px; }
+
+    .ms-footer {
+      padding: 8px 14px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── Live Output ── */
+    .live-output {
+      margin-top: 14px;
+      padding: 11px 14px;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      color: #6060a0;
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color .2s;
+    }
+
+    .live-output .lo-label { color: #404060; flex-shrink:0; }
+
+    .live-output .lo-values { color: #82aaff; flex:1; }
+
+    .live-output .lo-empty { color: #404060; font-style: italic; }
+
+    .live-output.has-values { border-color: rgba(101,86,232,.35); }
+
+    /* ── Install Panel ── */
+    .install-panel { padding: 28px 36px 36px; }
+
+    .install-intro {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .install-intro code {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      background: rgba(101,86,232,.08);
+      border: 1px solid rgba(101,86,232,.15);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    /* ── Component Switcher ── */
+    .comp-switcher {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 22px;
+    }
+
+    .comp-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-muted);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .comp-btn:hover { color: var(--text-primary); border-color: var(--border-hover); }
+
+    .comp-btn.active {
+      color: var(--accent);
+      background: var(--accent-dim);
+      border-color: rgba(101,86,232,.35);
+    }
+
+    .comp-btn svg { width:13px; height:13px; flex-shrink:0; }
+
+    .comp-panel { display: none; }
+    .comp-panel.active { display: block; }
+
+    /* ── Code Sub-Tabs ── */
+    .code-tabs-nav { display: flex; gap: 4px; margin-bottom: 0; }
+
+    .code-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-muted);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      transition: color .15s, background .15s;
+    }
+
+    .code-tab-btn .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .code-tab-btn:hover { color: var(--text-primary); }
+    .code-tab-btn.active { background: var(--code-bg); color: #e0e0f0; border-color: var(--code-border); }
+
+    .code-panel { display: none; }
+    .code-panel.active { display: block; }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 0 6px 6px 6px;
+      overflow: hidden;
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--code-border);
+      background: var(--code-surface);
+    }
+
+    .code-filename {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: #6060a0;
+      letter-spacing: .04em;
+    }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      color: #8080b0;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--code-border);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: color .15s, background .15s, border-color .15s;
+    }
+
+    .copy-btn svg { width:12px; height:12px; }
+    .copy-btn:hover { color: #c0c0f0; background: rgba(101,86,232,.15); border-color: rgba(101,86,232,.4); }
+    .copy-btn.copied { color: #4ade80; background: rgba(74,222,128,.10); border-color: rgba(74,222,128,.3); }
+
+    .code-block pre {
+      margin: 0;
+      padding: 18px 20px;
+      overflow-x: auto;
+      max-height: 380px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--code-border) transparent;
+    }
+
+    .code-block pre::-webkit-scrollbar { width:4px; height:4px; }
+    .code-block pre::-webkit-scrollbar-track { background: transparent; }
+    .code-block pre::-webkit-scrollbar-thumb { background: var(--code-border); border-radius:2px; }
+
+    .code-block code {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #c8c8e8;
+      white-space: pre;
+      display: block;
+    }
+
+    /* ── Usage / Methods ── */
+    .usage-section { margin-top: 28px; }
+
+    .usage-title {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 14px;
+    }
+
+    .usage-steps { display: flex; flex-direction: column; gap: 10px; }
+
+    .usage-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(101,86,232,.25);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+      margin-top: 1px;
+    }
+
+    .usage-step code {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      background: rgba(101,86,232,.08);
+      border: 1px solid rgba(101,86,232,.15);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    .methods-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+
+    .method-card {
+      padding: 10px 12px;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 7px;
+    }
+
+    .method-name { font-family:'DM Mono',monospace; font-size:11px; color:#82aaff; margin-bottom:3px; }
+    .method-desc { font-size:11px; color:#6060a0; line-height:1.4; }
+
+    /* ── Responsive ── */
+    @media (max-width:600px) {
+      body { padding: 20px 12px 40px; align-items: flex-start; }
+      .card-top, .demo-panel, .install-panel { padding-left: 20px; padding-right: 20px; }
+      .tabs-nav { padding: 0 20px; }
+      h1 { font-size: 18px; }
+      .search-input, .select-trigger, .trigger-text { font-size: 16px; }
+      .options-list { max-height: 180px; }
+      .methods-grid { grid-template-columns: 1fr; }
+      .code-block pre { max-height: 260px; }
+      .comp-btn { padding: 7px 12px; font-size: 11px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="card">
+
+  <!-- ── Card Top ── -->
+  <div class="card-top">
+    <div class="badge">UI Components</div>
+    <h1>Select Components <span>/ Demo v2.0</span></h1>
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="demo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M9 9h6M9 12h6M9 15h4"/>
+        </svg>
+        Demo
+      </button>
+      <button class="tab-btn" data-tab="install">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="16 18 22 12 16 6"/>
+          <polyline points="8 6 2 12 8 18"/>
+        </svg>
+        Installation
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       DEMO TAB
+  ════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-demo">
+    <div class="demo-panel">
+
+      <!-- ── Single Select ── -->
+      <div class="section-label"><span>Searchable Select</span></div>
+
+      <div class="form-group">
+        <label>
+          <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Country
+        </label>
+        <div class="searchable-select" id="country-select">
+          <div class="select-trigger" tabindex="0" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+            <span class="trigger-text placeholder">Choose a country…</span>
+            <div class="trigger-right">
+              <span class="selected-chip">✓</span>
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+          </div>
+          <div class="select-dropdown" role="listbox">
+            <div class="search-wrap">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input class="search-input" type="text" placeholder="Search countries…" autocomplete="off" spellcheck="false"/>
+              <span class="search-count"></span>
+            </div>
+            <ul class="options-list">
+              <li class="option" data-value="usa" role="option">United States <span class="option-value">US</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="canada" role="option">Canada <span class="option-value">CA</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="mexico" role="option">Mexico <span class="option-value">MX</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="uk" role="option">United Kingdom <span class="option-value">GB</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="france" role="option">France <span class="option-value">FR</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="germany" role="option">Germany <span class="option-value">DE</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="japan" role="option">Japan <span class="option-value">JP</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="australia" role="option">Australia <span class="option-value">AU</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="india" role="option">India <span class="option-value">IN</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="brazil" role="option">Brazil <span class="option-value">BR</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="philippines" role="option">Philippines <span class="option-value">PH</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="south-korea" role="option">South Korea <span class="option-value">KR</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+            </ul>
+          </div>
+        </div>
+        <input type="hidden" name="country" class="select-hidden-input"/>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <label>
+          <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>
+          </svg>
+          Category
+        </label>
+        <div class="searchable-select" id="category-select">
+          <div class="select-trigger" tabindex="0" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+            <span class="trigger-text placeholder">Choose a category…</span>
+            <div class="trigger-right">
+              <span class="selected-chip">✓</span>
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+          </div>
+          <div class="select-dropdown" role="listbox">
+            <div class="search-wrap">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input class="search-input" type="text" placeholder="Search categories…" autocomplete="off" spellcheck="false"/>
+              <span class="search-count"></span>
+            </div>
+            <ul class="options-list">
+              <li class="option" data-value="tech" role="option">Technology <span class="option-value">tech</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="business" role="option">Business <span class="option-value">biz</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="health" role="option">Health <span class="option-value">hlth</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="sports" role="option">Sports <span class="option-value">sprt</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="entertainment" role="option">Entertainment <span class="option-value">ent</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+              <li class="option" data-value="education" role="option">Education <span class="option-value">edu</span><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></li>
+            </ul>
+          </div>
+        </div>
+        <input type="hidden" name="category" class="select-hidden-input"/>
+      </div>
+
+      <!-- ── Multi Select ── -->
+      <div class="section-label" style="margin-top:32px"><span>Multi Select</span></div>
+
+      <div class="form-group">
+        <label>
+          <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          Skills
+        </label>
+        <!-- MultiSelect reads options from this native <select> -->
+        <select id="skillsSelect" multiple style="display:none">
+          <option value="js">JavaScript</option>
+          <option value="ts">TypeScript</option>
+          <option value="py">Python</option>
+          <option value="react">React</option>
+          <option value="vue">Vue</option>
+          <option value="node">Node.js</option>
+          <option value="css">CSS / Tailwind</option>
+          <option value="html">HTML</option>
+          <option value="sql">SQL</option>
+          <option value="docker">Docker</option>
+          <option value="git">Git</option>
+          <option value="aws">AWS</option>
+        </select>
+        <input type="hidden" id="skillsSelect-values" name="skills"/>
+        <!-- Live output -->
+        <div class="live-output" id="liveOutput">
+          <span class="lo-label">output →</span>
+          <span class="lo-empty">nothing selected yet</span>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /tab-demo -->
+
+  <!-- ════════════════════════════════════
+       INSTALLATION TAB
+  ════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-install">
+    <div class="install-panel">
+
+      <p class="install-intro">
+        Two drop-in components — copy the code you need. Both work with plain HTML, PHP, and Bootstrap 5. Link <code>CSS</code> in <code>&lt;head&gt;</code>, drop the HTML snippet inside your form, then add <code>JS</code> before <code>&lt;/body&gt;</code>.
+      </p>
+
+      <!-- Component switcher -->
+      <div class="comp-switcher">
+        <button class="comp-btn active" data-comp="single">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+          </svg>
+          Searchable Select
+        </button>
+        <button class="comp-btn" data-comp="multi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          Multi Select
+        </button>
+      </div>
+
+      <!-- ── Searchable Select Panel ── -->
+      <div class="comp-panel active" id="comp-single">
+
+        <div class="code-tabs-nav">
+          <button class="code-tab-btn active" data-code-tab="ss-html"><span class="dot" style="background:#f78c6c"></span>HTML</button>
+          <button class="code-tab-btn" data-code-tab="ss-css"><span class="dot" style="background:#7c9cf8"></span>CSS</button>
+          <button class="code-tab-btn" data-code-tab="ss-js"><span class="dot" style="background:#c3e88d"></span>JS</button>
+        </div>
+
+        <!-- HTML -->
+        <div class="code-panel active" id="code-ss-html">
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-filename">snippet — paste inside &lt;form&gt;</span>
+              <button class="copy-btn" data-copy="ss-html">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="raw-ss-html">&lt;!-- Link CSS in &lt;head&gt; --&gt;
+&lt;link rel="stylesheet" href="searchable-select.css"&gt;
+
+&lt;!-- Paste inside your &lt;form&gt; --&gt;
+&lt;div class="form-group"&gt;
+  &lt;label&gt;Choose an option&lt;/label&gt;
+  &lt;div class="searchable-select"&gt;
+    &lt;div class="select-trigger" tabindex="0" role="combobox"
+         aria-haspopup="listbox" aria-expanded="false"&gt;
+      &lt;span class="trigger-text placeholder"&gt;Choose an option...&lt;/span&gt;
+      &lt;div class="trigger-right"&gt;
+        &lt;span class="selected-chip"&gt;✓&lt;/span&gt;
+        &lt;svg class="chevron" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5"&gt;
+          &lt;polyline points="6 9 12 15 18 9"/&gt;
+        &lt;/svg&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="select-dropdown" role="listbox"&gt;
+      &lt;div class="search-wrap"&gt;
+        &lt;svg class="search-icon" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"&gt;
+          &lt;circle cx="11" cy="11" r="8"/&gt;
+          &lt;line x1="21" y1="21" x2="16.65" y2="16.65"/&gt;
+        &lt;/svg&gt;
+        &lt;input class="search-input" type="text"
+               placeholder="Search..." autocomplete="off"/&gt;
+        &lt;span class="search-count"&gt;&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;ul class="options-list"&gt;
+        &lt;li class="option" data-value="opt1" role="option"&gt;
+          Option One
+          &lt;span class="option-value"&gt;OPT1&lt;/span&gt;
+          &lt;svg class="check-icon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"&gt;
+            &lt;polyline points="20 6 9 17 4 12"/&gt;
+          &lt;/svg&gt;
+        &lt;/li&gt;
+        &lt;li class="option" data-value="opt2" role="option"&gt;
+          Option Two
+          &lt;span class="option-value"&gt;OPT2&lt;/span&gt;
+          &lt;svg class="check-icon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"&gt;
+            &lt;polyline points="20 6 9 17 4 12"/&gt;
+          &lt;/svg&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;input type="hidden" name="field_name" class="select-hidden-input"/&gt;
+&lt;/div&gt;
+
+&lt;!-- Link JS before &lt;/body&gt; --&gt;
+&lt;script src="searchable-select.js"&gt;&lt;/script&gt;</code></pre>
+          </div>
+        </div>
+
+        <!-- CSS -->
+        <div class="code-panel" id="code-ss-css">
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-filename">searchable-select.css</span>
+              <button class="copy-btn" data-copy="ss-css">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="raw-ss-css">:root {
+  --ss-surface:        #ffffff;
+  --ss-surface-2:      #f7f7fc;
+  --ss-border:         #e2e2ee;
+  --ss-border-hover:   #c0c0d8;
+  --ss-accent:         #6556e8;
+  --ss-accent-glow:    rgba(101,86,232,0.14);
+  --ss-accent-dim:     rgba(101,86,232,0.07);
+  --ss-text-primary:   #1a1a2e;
+  --ss-text-secondary: #606080;
+  --ss-text-muted:     #a0a0bc;
+  --ss-radius:         8px;
+  --ss-font:           'DM Sans','Segoe UI',sans-serif;
+  --ss-font-mono:      'DM Mono','Courier New',monospace;
+}
+
+.searchable-select { position:relative; width:100%; font-family:var(--ss-font); }
+
+.searchable-select .select-trigger {
+  width:100%; display:flex; align-items:center;
+  justify-content:space-between; padding:11px 14px;
+  background:var(--ss-surface-2); border:1px solid var(--ss-border);
+  border-radius:var(--ss-radius); cursor:pointer;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+  user-select:none; gap:10px;
+}
+
+.searchable-select .select-trigger:hover {
+  border-color:var(--ss-border-hover); background:#f2f2f9;
+}
+
+.searchable-select.open .select-trigger {
+  border-color:var(--ss-accent);
+  box-shadow:0 0 0 3px var(--ss-accent-glow);
+  border-radius:var(--ss-radius) var(--ss-radius) 0 0;
+  border-bottom-color:var(--ss-surface-2);
+}
+
+.searchable-select .trigger-text {
+  font-size:14px; color:var(--ss-text-primary); font-weight:400;
+  flex:1; min-width:0; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap;
+}
+.searchable-select .trigger-text.placeholder { color:var(--ss-text-muted); }
+
+.searchable-select .trigger-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+
+.searchable-select .selected-chip {
+  display:none; align-items:center; gap:4px; padding:2px 8px;
+  background:var(--ss-accent-dim); border:1px solid rgba(101,86,232,0.3);
+  border-radius:100px; font-size:11px; font-weight:500;
+  color:var(--ss-accent); font-family:var(--ss-font-mono);
+}
+.searchable-select.has-value .selected-chip { display:flex; }
+
+.searchable-select .chevron {
+  width:16px; height:16px; color:var(--ss-text-muted);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1), color .2s;
+  flex-shrink:0;
+}
+.searchable-select.open .chevron { transform:rotate(180deg); color:var(--ss-accent); }
+
+.searchable-select .select-dropdown {
+  position:absolute; top:calc(100% - 1px); left:0; right:0;
+  background:var(--ss-surface); border:1px solid var(--ss-accent);
+  border-top:none; border-radius:0 0 var(--ss-radius) var(--ss-radius);
+  z-index:9999; overflow:hidden;
+  box-shadow:0 16px 40px rgba(101,86,232,0.1),0 4px 12px rgba(0,0,0,0.08);
+  opacity:0; transform:translateY(-6px); pointer-events:none;
+  transition:opacity .2s ease,transform .2s cubic-bezier(.34,1.2,.64,1);
+}
+.searchable-select.open .select-dropdown { opacity:1; transform:translateY(0); pointer-events:all; }
+
+.searchable-select .search-wrap {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 12px; border-bottom:1px solid var(--ss-border);
+}
+.searchable-select .search-icon { width:14px; height:14px; color:var(--ss-text-muted); flex-shrink:0; }
+.searchable-select .search-input {
+  flex:1; background:none; border:none; outline:none;
+  font-size:13px; color:var(--ss-text-primary);
+  font-family:var(--ss-font); caret-color:var(--ss-accent);
+}
+.searchable-select .search-input::placeholder { color:var(--ss-text-muted); }
+.searchable-select .search-count {
+  font-size:11px; color:var(--ss-text-muted);
+  font-family:var(--ss-font-mono); flex-shrink:0;
+}
+
+.searchable-select .options-list {
+  list-style:none; padding:6px; margin:0;
+  max-height:220px; overflow-y:auto;
+  scrollbar-width:thin; scrollbar-color:var(--ss-border) transparent;
+}
+
+.searchable-select .option {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:9px 12px; border-radius:6px; cursor:pointer;
+  font-size:14px; color:var(--ss-text-secondary);
+  transition:background .15s,color .15s; gap:8px;
+}
+.searchable-select .option:hover { background:rgba(101,86,232,0.05); color:var(--ss-text-primary); }
+.searchable-select .option.selected { background:var(--ss-accent-dim); color:var(--ss-accent); font-weight:500; }
+.searchable-select .option.hidden { display:none; }
+
+.searchable-select .option-value {
+  font-size:11px; color:var(--ss-text-muted);
+  font-family:var(--ss-font-mono); flex-shrink:0;
+}
+.searchable-select .option.selected .option-value { color:rgba(101,86,232,0.5); }
+
+.searchable-select .check-icon {
+  width:14px; height:14px; color:var(--ss-accent);
+  opacity:0; flex-shrink:0; transition:opacity .15s;
+}
+.searchable-select .option.selected .check-icon { opacity:1; }
+
+.searchable-select .no-results {
+  display:flex; flex-direction:column; align-items:center;
+  padding:24px 12px; gap:6px; color:var(--ss-text-muted); font-size:13px;
+}
+.searchable-select .no-results svg { width:20px; height:20px; opacity:.4; margin-bottom:2px; }
+
+.select-hidden-input { display:none; }</code></pre>
+          </div>
+        </div>
+
+        <!-- JS -->
+        <div class="code-panel" id="code-ss-js">
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-filename">searchable-select.js</span>
+              <button class="copy-btn" data-copy="ss-js">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="raw-ss-js">class SearchableSelect {
+  constructor(el) {
+    this.el = el;
+    this.trigger = el.querySelector('.select-trigger');
+    this.triggerText = el.querySelector('.trigger-text');
+    this.searchInput = el.querySelector('.search-input');
+    this.options = el.querySelectorAll('.option');
+    this.searchCount = el.querySelector('.search-count');
+    this.hiddenInput = el.parentElement.querySelector('.select-hidden-input');
+    this.isOpen = false;
+    this.totalCount = this.options.length;
+    this._updateCount(this.totalCount);
+    this._bindEvents();
+  }
+
+  _updateCount(n) {
+    if (this.searchCount) this.searchCount.textContent = `${n}/${this.totalCount}`;
+  }
+
+  _bindEvents() {
+    this.trigger.addEventListener('click', () => this.toggle());
+    this.trigger.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.toggle(); }
+    });
+    this.searchInput.addEventListener('input', e => this._filter(e.target.value));
+    this.options.forEach(opt => opt.addEventListener('click', () => this._selectOption(opt)));
+    document.addEventListener('click', e => { if (!this.el.contains(e.target)) this.close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') this.close(); });
+  }
+
+  toggle() { this.isOpen ? this.close() : this.open(); }
+
+  open() {
+    document.querySelectorAll('.searchable-select.open').forEach(s => {
+      if (s !== this.el) s._ssInstance?.close();
+    });
+    this.el.classList.add('open');
+    this.trigger.setAttribute('aria-expanded', 'true');
+    this.isOpen = true;
+    requestAnimationFrame(() => this.searchInput.focus());
+  }
+
+  close() {
+    this.el.classList.remove('open');
+    this.trigger.setAttribute('aria-expanded', 'false');
+    this.searchInput.value = '';
+    this._filter('');
+    this.isOpen = false;
+  }
+
+  _filter(term) {
+    const t = term.toLowerCase().trim();
+    let visible = 0;
+    this.options.forEach(opt => {
+      const match = opt.textContent.toLowerCase().includes(t);
+      opt.classList.toggle('hidden', !match);
+      if (match) visible++;
+    });
+    this._updateCount(visible);
+    this._handleNoResults(visible);
+  }
+
+  _handleNoResults(n) {
+    let msg = this.el.querySelector('.no-results');
+    if (n === 0) {
+      if (!msg) {
+        msg = document.createElement('li');
+        msg.className = 'no-results';
+        msg.innerHTML = `
+          &lt;svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"&gt;
+            &lt;circle cx="11" cy="11" r="8"/&gt;&lt;line x1="21" y1="21" x2="16.65" y2="16.65"/&gt;
+            &lt;line x1="8" y1="8" x2="14" y2="14"/&gt;
+          &lt;/svg&gt;No results found`;
+        this.el.querySelector('.options-list').appendChild(msg);
+      }
+    } else if (msg) msg.remove();
+  }
+
+  _selectOption(opt) {
+    this.options.forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    const label = opt.childNodes[0].textContent.trim();
+    this.triggerText.textContent = label;
+    this.triggerText.classList.remove('placeholder');
+    this.el.classList.add('has-value');
+    if (this.hiddenInput) this.hiddenInput.value = opt.dataset.value;
+    this.close();
+  }
+
+  // Public API
+  setValue(val) {
+    const opt = [...this.options].find(o => o.dataset.value === val);
+    if (opt) this._selectOption(opt);
+  }
+
+  getValue() {
+    return this.hiddenInput ? this.hiddenInput.value : null;
+  }
+
+  clear() {
+    this.options.forEach(o => o.classList.remove('selected'));
+    this.triggerText.textContent = this.trigger.dataset.placeholder || 'Choose…';
+    this.triggerText.classList.add('placeholder');
+    this.el.classList.remove('has-value');
+    if (this.hiddenInput) this.hiddenInput.value = '';
+  }
+}
+
+// Auto-init
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.searchable-select').forEach(el => {
+    el._ssInstance = new SearchableSelect(el);
+  });
+});</code></pre>
+          </div>
+        </div>
+
+        <div class="usage-section">
+          <div class="usage-title">Quick Setup</div>
+          <div class="usage-steps">
+            <div class="usage-step">
+              <span class="step-num">1</span>
+              Save the CSS and JS, then link them — <code>&lt;link&gt;</code> in <code>&lt;head&gt;</code> and <code>&lt;script&gt;</code> before <code>&lt;/body&gt;</code>.
+            </div>
+            <div class="usage-step">
+              <span class="step-num">2</span>
+              Paste the HTML inside any <code>&lt;form&gt;</code>. Add <code>&lt;li class="option" data-value="..."&gt;</code> items inside <code>.options-list</code>.
+            </div>
+            <div class="usage-step">
+              <span class="step-num">3</span>
+              JS auto-initializes every <code>.searchable-select</code> on load. Access programmatically via <code>el._ssInstance</code>.
+            </div>
+          </div>
+          <div class="usage-title" style="margin-top:22px">JS API</div>
+          <div class="methods-grid">
+            <div class="method-card"><div class="method-name">setValue("val")</div><div class="method-desc">Select by data-value</div></div>
+            <div class="method-card"><div class="method-name">getValue()</div><div class="method-desc">Returns selected value</div></div>
+            <div class="method-card"><div class="method-name">clear()</div><div class="method-desc">Reset to empty state</div></div>
+            <div class="method-card"><div class="method-name">open() / close()</div><div class="method-desc">Programmatic toggle</div></div>
+          </div>
+        </div>
+
+      </div><!-- /comp-single -->
+
+      <!-- ── Multi Select Panel ── -->
+      <div class="comp-panel" id="comp-multi">
+
+        <div class="code-tabs-nav">
+          <button class="code-tab-btn active" data-code-tab="ms-html"><span class="dot" style="background:#f78c6c"></span>HTML</button>
+          <button class="code-tab-btn" data-code-tab="ms-css"><span class="dot" style="background:#7c9cf8"></span>CSS</button>
+          <button class="code-tab-btn" data-code-tab="ms-js"><span class="dot" style="background:#c3e88d"></span>JS</button>
+        </div>
+
+        <!-- HTML -->
+        <div class="code-panel active" id="code-ms-html">
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-filename">snippet — paste inside &lt;form&gt;</span>
+              <button class="copy-btn" data-copy="ms-html">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="raw-ms-html">&lt;!-- Link CSS in &lt;head&gt; --&gt;
+&lt;link rel="stylesheet" href="multi-select.css"&gt;
+
+&lt;!-- Paste inside your &lt;form&gt; --&gt;
+&lt;div class="form-group"&gt;
+  &lt;label&gt;Choose Skills&lt;/label&gt;
+
+  &lt;!-- Add your options here. Use 'selected' attr to pre-select. --&gt;
+  &lt;select id="mySelect" multiple&gt;
+    &lt;option value="js"&gt;JavaScript&lt;/option&gt;
+    &lt;option value="ts"&gt;TypeScript&lt;/option&gt;
+    &lt;option value="py"&gt;Python&lt;/option&gt;
+    &lt;option value="react"&gt;React&lt;/option&gt;
+    &lt;option value="vue"&gt;Vue&lt;/option&gt;
+    &lt;option value="node"&gt;Node.js&lt;/option&gt;
+  &lt;/select&gt;
+
+  &lt;!-- Optional: hidden input for form submission (comma-separated values) --&gt;
+  &lt;input type="hidden" id="mySelect-values" name="skills" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Link JS before &lt;/body&gt; --&gt;
+&lt;script src="multi-select.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const ms = new MultiSelect('mySelect', {
+    placeholder:       'Choose your skills...',
+    searchPlaceholder: 'Search skills...',
+    showSelectAll:     true,
+    maxTags:           3,               // tags shown before "+N more"
+    hiddenInputId:     'mySelect-values',
+    onChange: (selected) =&gt; {
+      console.log('Selected values:', selected);
+    }
+  });
+&lt;/script&gt;</code></pre>
+          </div>
+        </div>
+
+        <!-- CSS -->
+        <div class="code-panel" id="code-ms-css">
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-filename">multi-select.css</span>
+              <button class="copy-btn" data-copy="ms-css">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="raw-ms-css">:root {
+  --ms-surface:        #ffffff;
+  --ms-surface-2:      #f7f7fc;
+  --ms-border:         #e2e2ee;
+  --ms-border-hover:   #c0c0d8;
+  --ms-accent:         #6556e8;
+  --ms-accent-glow:    rgba(101,86,232,0.14);
+  --ms-accent-dim:     rgba(101,86,232,0.07);
+  --ms-text-primary:   #1a1a2e;
+  --ms-text-secondary: #606080;
+  --ms-text-muted:     #a0a0bc;
+  --ms-radius:         8px;
+  --ms-font:           'DM Sans','Segoe UI',sans-serif;
+  --ms-font-mono:      'DM Mono','Courier New',monospace;
+}
+
+/* Hide original select */
+.ms-dropdown ~ select,
+select[id].ms-hidden { display:none; }
+
+.ms-dropdown {
+  position:relative; width:100%;
+  font-family:var(--ms-font); font-size:14px;
+}
+
+.ms-trigger {
+  width:100%; display:flex; align-items:center;
+  justify-content:space-between; min-height:46px;
+  padding:6px 10px 6px 12px; gap:8px;
+  background:var(--ms-surface-2); border:1px solid var(--ms-border);
+  border-radius:var(--ms-radius); cursor:pointer;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+}
+.ms-trigger:hover { border-color:var(--ms-border-hover); background:#f2f2f9; }
+.ms-trigger.open  { border-color:var(--ms-accent); box-shadow:0 0 0 3px var(--ms-accent-glow); }
+
+.ms-selected { display:flex; flex-wrap:wrap; gap:5px; flex:1; align-items:center; min-height:28px; }
+.ms-placeholder { color:var(--ms-text-muted); font-size:14px; }
+
+.ms-tag {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 8px 3px 10px; max-width:160px;
+  background:var(--ms-accent-dim); border:1px solid rgba(101,86,232,.22);
+  color:var(--ms-accent); border-radius:100px;
+  font-size:12px; font-weight:500;
+  animation:ms-pop .15s ease;
+}
+.ms-tag span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.ms-tag .ms-remove {
+  display:flex; align-items:center; justify-content:center;
+  width:14px; height:14px; border-radius:50%;
+  cursor:pointer; font-size:14px; line-height:1;
+  transition:background .15s; flex-shrink:0;
+  color:var(--ms-accent); opacity:.65;
+}
+.ms-tag .ms-remove:hover { background:rgba(101,86,232,.18); opacity:1; }
+
+.ms-count {
+  display:inline-flex; align-items:center; padding:3px 9px;
+  background:var(--ms-accent); color:#fff; border-radius:100px;
+  font-size:11px; font-weight:600; font-family:var(--ms-font-mono);
+}
+
+.ms-arrow {
+  width:16px; height:16px; display:flex; align-items:center;
+  justify-content:center; color:var(--ms-text-muted); flex-shrink:0;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1), color .2s;
+}
+.ms-trigger.open .ms-arrow { transform:rotate(180deg); color:var(--ms-accent); }
+
+.ms-panel {
+  position:absolute; top:calc(100% + 4px); left:0; right:0;
+  background:var(--ms-surface-2); border:1px solid var(--ms-accent);
+  border-radius:var(--ms-radius); z-index:9999;
+  box-shadow:0 16px 40px rgba(101,86,232,.10),0 4px 12px rgba(0,0,0,.08);
+  opacity:0; visibility:hidden; transform:translateY(-6px);
+  transition:opacity .2s ease,transform .2s cubic-bezier(.34,1.2,.64,1),visibility .2s;
+  overflow:hidden; display:flex; flex-direction:column;
+}
+.ms-panel.open { opacity:1; visibility:visible; transform:translateY(0); }
+
+.ms-search {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 12px; border-bottom:1px solid var(--ms-border);
+}
+.ms-search-icon { width:13px; height:13px; color:var(--ms-text-muted); flex-shrink:0; }
+.ms-search input {
+  flex:1; background:none; border:none; outline:none;
+  font-size:13px; color:var(--ms-text-primary);
+  font-family:var(--ms-font); caret-color:var(--ms-accent);
+}
+.ms-search input::placeholder { color:var(--ms-text-muted); }
+
+.ms-select-all {
+  display:flex; align-items:center; padding:9px 12px;
+  cursor:pointer; border-bottom:1px solid var(--ms-border);
+  font-weight:600; color:var(--ms-accent);
+  font-size:12px; font-family:var(--ms-font-mono);
+  transition:background .15s; letter-spacing:.03em; user-select:none;
+}
+.ms-select-all:hover { background:var(--ms-accent-dim); }
+.ms-select-all input { margin-right:10px; width:14px; height:14px; accent-color:var(--ms-accent); cursor:pointer; }
+
+.ms-list {
+  overflow-y:auto; flex:1; list-style:none; max-height:200px; padding:5px;
+  scrollbar-width:thin; scrollbar-color:var(--ms-border) transparent;
+}
+.ms-list::-webkit-scrollbar { width:4px; }
+.ms-list::-webkit-scrollbar-thumb { background:var(--ms-border); border-radius:2px; }
+
+.ms-option {
+  display:flex; align-items:center; padding:9px 12px; border-radius:6px;
+  cursor:pointer; font-size:14px; color:var(--ms-text-secondary);
+  transition:background .15s,color .15s;
+}
+.ms-option:hover      { background:rgba(101,86,232,.05); color:var(--ms-text-primary); }
+.ms-option.selected   { background:var(--ms-accent-dim); color:var(--ms-accent); font-weight:500; }
+.ms-option.highlighted{ background:rgba(101,86,232,.08); }
+
+.ms-option input[type="checkbox"] {
+  margin-right:10px; width:14px; height:14px;
+  accent-color:var(--ms-accent); cursor:pointer; flex-shrink:0;
+}
+.ms-option span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.ms-empty {
+  display:flex; flex-direction:column; align-items:center;
+  padding:24px 12px; gap:6px; color:var(--ms-text-muted); font-size:13px;
+}
+.ms-empty svg { width:20px; height:20px; opacity:.4; margin-bottom:2px; }
+
+.ms-footer {
+  padding:8px 14px; border-top:1px solid var(--ms-border);
+  font-size:11px; color:var(--ms-text-muted); font-family:var(--ms-font-mono);
+}
+
+@keyframes ms-pop { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }</code></pre>
+          </div>
+        </div>
+
+        <!-- JS -->
+        <div class="code-panel" id="code-ms-js">
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-filename">multi-select.js</span>
+              <button class="copy-btn" data-copy="ms-js">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="raw-ms-js">/**
+ * MultiSelect — reads options from a native &lt;select multiple&gt;,
+ * builds a fully custom tag-based dropdown.
+ *
+ * Usage:
+ *   &lt;select id="mySelect" multiple&gt;
+ *     &lt;option value="1"&gt;Option 1&lt;/option&gt;
+ *   &lt;/select&gt;
+ *   const ms = new MultiSelect('mySelect', { placeholder: 'Pick...' });
+ */
+class MultiSelect {
+  constructor(selectId, config = {}) {
+    this.select = document.getElementById(selectId);
+    if (!this.select) throw new Error(`#${selectId} not found`);
+
+    this.config = {
+      placeholder:       'Select options...',
+      searchPlaceholder: 'Search...',
+      showSelectAll:     true,
+      maxTags:           3,
+      onChange:          null,
+      hiddenInputId:     null,
+      ...config
+    };
+
+    this.options = Array.from(this.select.options).map(o => ({
+      value: o.value, label: o.textContent.trim(), selected: o.selected
+    }));
+    this.filtered    = [...this.options];
+    this.isOpen      = false;
+    this.highlighted = -1;
+    this.hiddenInput = this.config.hiddenInputId
+      ? document.getElementById(this.config.hiddenInputId) : null;
+
+    this._build();
+    this._bindEvents();
+    this._updateUI();
+  }
+
+  /* ── Build DOM ── */
+  _build() {
+    this.wrapper = document.createElement('div');
+    this.wrapper.className = 'ms-dropdown';
+
+    // Trigger
+    this.trigger = document.createElement('div');
+    this.trigger.className = 'ms-trigger';
+    this.trigger.setAttribute('tabindex', '0');
+
+    this.selectedBox = document.createElement('div');
+    this.selectedBox.className = 'ms-selected';
+
+    this.placeholder = document.createElement('span');
+    this.placeholder.className = 'ms-placeholder';
+    this.placeholder.textContent = this.config.placeholder;
+
+    this.arrow = document.createElement('div');
+    this.arrow.className = 'ms-arrow';
+    this.arrow.innerHTML = `&lt;svg width="12" height="12" viewBox="0 0 12 12"
+      fill="none" stroke="currentColor" stroke-width="2"&gt;
+      &lt;path d="M2 4L6 8L10 4"/&gt;&lt;/svg&gt;`;
+
+    this.trigger.append(this.selectedBox, this.arrow);
+
+    // Panel
+    this.panel = document.createElement('div');
+    this.panel.className = 'ms-panel';
+
+    // Search
+    const sw = document.createElement('div');
+    sw.className = 'ms-search';
+    sw.innerHTML = `&lt;svg class="ms-search-icon" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2"&gt;
+      &lt;circle cx="11" cy="11" r="8"/&gt;
+      &lt;line x1="21" y1="21" x2="16.65" y2="16.65"/&gt;&lt;/svg&gt;`;
+    this.searchInput = document.createElement('input');
+    this.searchInput.type = 'text';
+    this.searchInput.placeholder = this.config.searchPlaceholder;
+    this.searchInput.setAttribute('autocomplete', 'off');
+    sw.appendChild(this.searchInput);
+    this.panel.appendChild(sw);
+
+    // Select All
+    if (this.config.showSelectAll) {
+      this.selectAllRow = document.createElement('div');
+      this.selectAllRow.className = 'ms-select-all';
+      this.selectAllBox = document.createElement('input');
+      this.selectAllBox.type = 'checkbox';
+      this.selectAllRow.append(this.selectAllBox, document.createTextNode(' Select All'));
+      this.panel.appendChild(this.selectAllRow);
+    }
+
+    // List
+    this.list = document.createElement('ul');
+    this.list.className = 'ms-list';
+    this.panel.appendChild(this.list);
+
+    // Footer
+    this.footer = document.createElement('div');
+    this.footer.className = 'ms-footer';
+    this.panel.appendChild(this.footer);
+
+    this.wrapper.append(this.trigger, this.panel);
+    this.select.parentNode.insertBefore(this.wrapper, this.select.nextSibling);
+    this.select.style.display = 'none';
+  }
+
+  /* ── Events ── */
+  _bindEvents() {
+    this.trigger.addEventListener('click', e => { e.stopPropagation(); this._toggle(); });
+    this.trigger.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this._toggle(); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); if (!this.isOpen) this._open(); }
+      if (e.key === 'Escape') this._close();
+    });
+    this.searchInput.addEventListener('input', e => this._filter(e.target.value));
+    this.searchInput.addEventListener('click', e => e.stopPropagation());
+    this.searchInput.addEventListener('keydown', e => {
+      e.stopPropagation();
+      if (e.key === 'ArrowDown') { e.preventDefault(); this._moveHighlight(1); }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); this._moveHighlight(-1); }
+      if (e.key === 'Enter')     { e.preventDefault(); this._selectHighlighted(); }
+      if (e.key === 'Escape')    { this._close(); this.trigger.focus(); }
+    });
+    if (this.selectAllRow) {
+      this.selectAllRow.addEventListener('click', e => { e.stopPropagation(); this._toggleAll(); });
+    }
+    document.addEventListener('click', e => { if (!this.wrapper.contains(e.target)) this._close(); });
+    this.panel.addEventListener('click', e => e.stopPropagation());
+  }
+
+  _toggle() { this.isOpen ? this._close() : this._open(); }
+
+  _open() {
+    this.isOpen = true;
+    this.trigger.classList.add('open');
+    this.panel.classList.add('open');
+    this._renderList();
+    this._updateSelectAll();
+    setTimeout(() => {
+      this.searchInput.focus();
+      if (this.filtered.length > 0) { this.highlighted = 0; this._updateHighlight(); }
+    }, 0);
+  }
+
+  _close() {
+    this.isOpen = false;
+    this.trigger.classList.remove('open');
+    this.panel.classList.remove('open');
+    this.searchInput.value = '';
+    this._filter('');
+    this.highlighted = -1;
+  }
+
+  _filter(q) {
+    const t = q.toLowerCase().trim();
+    this.filtered = t ? this.options.filter(o => o.label.toLowerCase().includes(t)) : [...this.options];
+    this.highlighted = this.filtered.length > 0 ? 0 : -1;
+    this._renderList();
+    this._updateSelectAll();
+  }
+
+  _renderList() {
+    this.list.innerHTML = '';
+    if (this.filtered.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'ms-empty';
+      li.innerHTML = `&lt;svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"&gt;
+        &lt;circle cx="11" cy="11" r="8"/&gt;&lt;line x1="21" y1="21" x2="16.65" y2="16.65"/&gt;
+        &lt;line x1="8" y1="8" x2="14" y2="14"/&gt;&lt;/svg&gt;No results found`;
+      this.list.appendChild(li); return;
+    }
+    this.filtered.forEach((opt, i) => {
+      const li = document.createElement('li');
+      li.className = 'ms-option' + (opt.selected ? ' selected' : '');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.checked = opt.selected; cb.tabIndex = -1;
+      const tx = document.createElement('span');
+      tx.textContent = opt.label;
+      li.append(cb, tx);
+      li.addEventListener('click', e => { e.stopPropagation(); this._toggleOption(opt.value); });
+      li.addEventListener('mouseenter', () => { this.highlighted = i; this._updateHighlight(); });
+      this.list.appendChild(li);
+    });
+    this._updateHighlight();
+  }
+
+  _toggleOption(value) {
+    const opt = this.options.find(o => o.value === value);
+    if (!opt) return;
+    opt.selected = !opt.selected;
+    const orig = Array.from(this.select.options).find(o => o.value === value);
+    if (orig) orig.selected = opt.selected;
+    this._updateUI();
+    this._updateSelectAll();
+    this._renderList();
+    if (this.config.onChange) this.config.onChange(this.getSelectedValues());
+  }
+
+  _toggleAll() {
+    const allSel = this.filtered.every(o => o.selected);
+    this.filtered.forEach(o => {
+      o.selected = !allSel;
+      const orig = Array.from(this.select.options).find(op => op.value === o.value);
+      if (orig) orig.selected = o.selected;
+    });
+    this._updateUI();
+    this._updateSelectAll();
+    this._renderList();
+    if (this.config.onChange) this.config.onChange(this.getSelectedValues());
+  }
+
+  _updateSelectAll() {
+    if (!this.selectAllBox) return;
+    const all  = this.filtered.length > 0 && this.filtered.every(o => o.selected);
+    const some = this.filtered.some(o => o.selected);
+    this.selectAllBox.checked       = all;
+    this.selectAllBox.indeterminate = some && !all;
+  }
+
+  _moveHighlight(dir) {
+    this.highlighted = Math.max(0, Math.min(this.highlighted + dir, this.filtered.length - 1));
+    this._updateHighlight();
+  }
+
+  _selectHighlighted() {
+    if (this.highlighted >= 0 && this.filtered[this.highlighted])
+      this._toggleOption(this.filtered[this.highlighted].value);
+  }
+
+  _updateHighlight() {
+    this.list.querySelectorAll('.ms-option').forEach((el, i) => {
+      el.classList.toggle('highlighted', i === this.highlighted);
+      if (i === this.highlighted) el.scrollIntoView({ block:'nearest', behavior:'smooth' });
+    });
+  }
+
+  _updateUI() { this._renderTags(); this._updateFooter(); this._syncHidden(); }
+
+  _renderTags() {
+    this.selectedBox.innerHTML = '';
+    const sel = this.options.filter(o => o.selected);
+    if (sel.length === 0) { this.selectedBox.appendChild(this.placeholder); return; }
+    const visible = sel.slice(0, this.config.maxTags);
+    visible.forEach(o => this.selectedBox.appendChild(this._makeTag(o)));
+    if (sel.length > this.config.maxTags) {
+      const cnt = document.createElement('span');
+      cnt.className = 'ms-count';
+      cnt.textContent = `+${sel.length - this.config.maxTags} more`;
+      this.selectedBox.appendChild(cnt);
+    }
+  }
+
+  _makeTag(opt) {
+    const tag = document.createElement('div');
+    tag.className = 'ms-tag';
+    tag.innerHTML = `&lt;span&gt;${opt.label}&lt;/span&gt;&lt;div class="ms-remove"&gt;&times;&lt;/div&gt;`;
+    tag.querySelector('.ms-remove').addEventListener('click', e => {
+      e.stopPropagation(); this._toggleOption(opt.value);
+    });
+    return tag;
+  }
+
+  _updateFooter() {
+    const n = this.options.filter(o => o.selected).length;
+    this.footer.textContent = `${n} of ${this.options.length} selected`;
+  }
+
+  _syncHidden() {
+    if (this.hiddenInput) this.hiddenInput.value = this.getSelectedValues().join(',');
+  }
+
+  /* ── Public API ── */
+  getSelectedValues() { return this.options.filter(o => o.selected).map(o => o.value); }
+  getSelectedLabels() { return this.options.filter(o => o.selected).map(o => o.label); }
+
+  setValues(values) {
+    this.options.forEach(o => {
+      o.selected = values.includes(o.value);
+      const orig = Array.from(this.select.options).find(op => op.value === o.value);
+      if (orig) orig.selected = o.selected;
+    });
+    this._updateUI(); this._updateSelectAll(); this._renderList();
+    if (this.config.onChange) this.config.onChange(this.getSelectedValues());
+  }
+
+  clear() { this.setValues([]); }
+  destroy() { this.wrapper.remove(); }
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="usage-section">
+          <div class="usage-title">Quick Setup</div>
+          <div class="usage-steps">
+            <div class="usage-step">
+              <span class="step-num">1</span>
+              Drop the CSS and JS into your project. Add the <code>&lt;select multiple&gt;</code> with your <code>&lt;option&gt;</code> items inside a <code>&lt;form&gt;</code>.
+            </div>
+            <div class="usage-step">
+              <span class="step-num">2</span>
+              Call <code>new MultiSelect('yourSelectId', { ... })</code>. The component hides the original select and builds its custom UI automatically.
+            </div>
+            <div class="usage-step">
+              <span class="step-num">3</span>
+              Add <code>hiddenInputId</code> for form submission (comma-separated values). Use the <code>onChange</code> callback to react to selection changes.
+            </div>
+          </div>
+          <div class="usage-title" style="margin-top:22px">JS API</div>
+          <div class="methods-grid">
+            <div class="method-card"><div class="method-name">setValues(["a","b"])</div><div class="method-desc">Set selection by values</div></div>
+            <div class="method-card"><div class="method-name">getSelectedValues()</div><div class="method-desc">Returns array of values</div></div>
+            <div class="method-card"><div class="method-name">getSelectedLabels()</div><div class="method-desc">Returns array of labels</div></div>
+            <div class="method-card"><div class="method-name">clear() / destroy()</div><div class="method-desc">Reset or remove component</div></div>
+          </div>
+        </div>
+
+      </div><!-- /comp-multi -->
+
+    </div>
+  </div><!-- /tab-install -->
+
+</div><!-- /card -->
+
+<script>
+  /* ── Main tab switching ── */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+
+  /* ── Component switcher ── */
+  document.querySelectorAll('.comp-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.comp;
+      document.querySelectorAll('.comp-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.comp-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('comp-' + target).classList.add('active');
+    });
+  });
+
+  /* ── Code sub-tab switching (handles both single and multi) ── */
+  document.querySelectorAll('.code-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.codeTab;
+      // Only toggle siblings within the same comp-panel
+      const compPanel = btn.closest('.comp-panel');
+      compPanel.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+      compPanel.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('code-' + target).classList.add('active');
+    });
+  });
+
+  /* ── Copy buttons ── */
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.copy;
+      const el  = document.getElementById('raw-' + key);
+      if (!el) return;
+      navigator.clipboard.writeText(el.innerText || el.textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.classList.add('copied');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2000);
+      });
+    });
+  });
+
+  /* ── SearchableSelect ── */
+  class SearchableSelect {
+    constructor(el) {
+      this.el = el;
+      this.trigger      = el.querySelector('.select-trigger');
+      this.triggerText  = el.querySelector('.trigger-text');
+      this.searchInput  = el.querySelector('.search-input');
+      this.options      = el.querySelectorAll('.option');
+      this.searchCount  = el.querySelector('.search-count');
+      this.hiddenInput  = el.parentElement.querySelector('.select-hidden-input');
+      this.isOpen       = false;
+      this.totalCount   = this.options.length;
+      this._updateCount(this.totalCount);
+      this._bindEvents();
+    }
+
+    _updateCount(n) {
+      if (this.searchCount) this.searchCount.textContent = `${n}/${this.totalCount}`;
+    }
+
+    _bindEvents() {
+      this.trigger.addEventListener('click', () => this.toggle());
+      this.trigger.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.toggle(); }
+      });
+      this.searchInput.addEventListener('input', e => this._filter(e.target.value));
+      this.options.forEach(opt => opt.addEventListener('click', () => this._selectOption(opt)));
+      document.addEventListener('click', e => { if (!this.el.contains(e.target)) this.close(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') this.close(); });
+    }
+
+    toggle() { this.isOpen ? this.close() : this.open(); }
+
+    open() {
+      document.querySelectorAll('.searchable-select.open').forEach(s => {
+        if (s !== this.el) s._ssInstance?.close();
+      });
+      this.el.classList.add('open');
+      this.trigger.setAttribute('aria-expanded', 'true');
+      this.isOpen = true;
+      requestAnimationFrame(() => this.searchInput.focus());
+    }
+
+    close() {
+      this.el.classList.remove('open');
+      this.trigger.setAttribute('aria-expanded', 'false');
+      this.searchInput.value = '';
+      this._filter('');
+      this.isOpen = false;
+    }
+
+    _filter(term) {
+      const t = term.toLowerCase().trim();
+      let visible = 0;
+      this.options.forEach(opt => {
+        const match = opt.textContent.toLowerCase().includes(t);
+        opt.classList.toggle('hidden', !match);
+        if (match) visible++;
+      });
+      this._updateCount(visible);
+      this._handleNoResults(visible);
+    }
+
+    _handleNoResults(n) {
+      let msg = this.el.querySelector('.no-results');
+      if (n === 0) {
+        if (!msg) {
+          msg = document.createElement('li');
+          msg.className = 'no-results';
+          msg.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="8" x2="14" y2="14"/></svg>No results found`;
+          this.el.querySelector('.options-list').appendChild(msg);
+        }
+      } else if (msg) msg.remove();
+    }
+
+    _selectOption(opt) {
+      this.options.forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      const label = opt.childNodes[0].textContent.trim();
+      this.triggerText.textContent = label;
+      this.triggerText.classList.remove('placeholder');
+      this.el.classList.add('has-value');
+      if (this.hiddenInput) this.hiddenInput.value = opt.dataset.value;
+      this.close();
+    }
+  }
+
+  /* ── MultiSelect ── */
+  class MultiSelect {
+    constructor(selectId, config = {}) {
+      this.select = document.getElementById(selectId);
+      if (!this.select) throw new Error(`#${selectId} not found`);
+
+      this.config = {
+        placeholder: 'Select options...', searchPlaceholder: 'Search...',
+        showSelectAll: true, maxTags: 3, onChange: null, hiddenInputId: null,
+        ...config
+      };
+
+      this.options = Array.from(this.select.options).map(o => ({
+        value: o.value, label: o.textContent.trim(), selected: o.selected
+      }));
+      this.filtered    = [...this.options];
+      this.isOpen      = false;
+      this.highlighted = -1;
+      this.hiddenInput = this.config.hiddenInputId
+        ? document.getElementById(this.config.hiddenInputId) : null;
+
+      this._build();
+      this._bindEvents();
+      this._updateUI();
+    }
+
+    _build() {
+      this.wrapper = document.createElement('div');
+      this.wrapper.className = 'ms-dropdown';
+
+      this.trigger = document.createElement('div');
+      this.trigger.className = 'ms-trigger';
+      this.trigger.setAttribute('tabindex', '0');
+
+      this.selectedBox = document.createElement('div');
+      this.selectedBox.className = 'ms-selected';
+
+      this.placeholder = document.createElement('span');
+      this.placeholder.className = 'ms-placeholder';
+      this.placeholder.textContent = this.config.placeholder;
+
+      this.arrow = document.createElement('div');
+      this.arrow.className = 'ms-arrow';
+      this.arrow.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4L6 8L10 4"/></svg>`;
+
+      this.trigger.append(this.selectedBox, this.arrow);
+
+      this.panel = document.createElement('div');
+      this.panel.className = 'ms-panel';
+
+      const sw = document.createElement('div');
+      sw.className = 'ms-search';
+      sw.innerHTML = `<svg class="ms-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+      this.searchInput = document.createElement('input');
+      this.searchInput.type = 'text';
+      this.searchInput.placeholder = this.config.searchPlaceholder;
+      this.searchInput.setAttribute('autocomplete', 'off');
+      sw.appendChild(this.searchInput);
+      this.panel.appendChild(sw);
+
+      if (this.config.showSelectAll) {
+        this.selectAllRow = document.createElement('div');
+        this.selectAllRow.className = 'ms-select-all';
+        this.selectAllBox = document.createElement('input');
+        this.selectAllBox.type = 'checkbox';
+        this.selectAllRow.append(this.selectAllBox, document.createTextNode(' Select All'));
+        this.panel.appendChild(this.selectAllRow);
+      }
+
+      this.list = document.createElement('ul');
+      this.list.className = 'ms-list';
+      this.panel.appendChild(this.list);
+
+      this.footer = document.createElement('div');
+      this.footer.className = 'ms-footer';
+      this.panel.appendChild(this.footer);
+
+      this.wrapper.append(this.trigger, this.panel);
+      this.select.parentNode.insertBefore(this.wrapper, this.select.nextSibling);
+      this.select.style.display = 'none';
+    }
+
+    _bindEvents() {
+      this.trigger.addEventListener('click', e => { e.stopPropagation(); this._toggle(); });
+      this.trigger.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this._toggle(); }
+        if (e.key === 'ArrowDown') { e.preventDefault(); if (!this.isOpen) this._open(); }
+        if (e.key === 'Escape') this._close();
+      });
+      this.searchInput.addEventListener('input', e => this._filter(e.target.value));
+      this.searchInput.addEventListener('click', e => e.stopPropagation());
+      this.searchInput.addEventListener('keydown', e => {
+        e.stopPropagation();
+        if (e.key === 'ArrowDown') { e.preventDefault(); this._moveHighlight(1); }
+        if (e.key === 'ArrowUp')   { e.preventDefault(); this._moveHighlight(-1); }
+        if (e.key === 'Enter')     { e.preventDefault(); this._selectHighlighted(); }
+        if (e.key === 'Escape')    { this._close(); this.trigger.focus(); }
+      });
+      if (this.selectAllRow) {
+        this.selectAllRow.addEventListener('click', e => { e.stopPropagation(); this._toggleAll(); });
+      }
+      document.addEventListener('click', e => { if (!this.wrapper.contains(e.target)) this._close(); });
+      this.panel.addEventListener('click', e => e.stopPropagation());
+    }
+
+    _toggle() { this.isOpen ? this._close() : this._open(); }
+
+    _open() {
+      this.isOpen = true;
+      this.trigger.classList.add('open');
+      this.panel.classList.add('open');
+      this._renderList();
+      this._updateSelectAll();
+      setTimeout(() => {
+        this.searchInput.focus();
+        if (this.filtered.length > 0) { this.highlighted = 0; this._updateHighlight(); }
+      }, 0);
+    }
+
+    _close() {
+      this.isOpen = false;
+      this.trigger.classList.remove('open');
+      this.panel.classList.remove('open');
+      this.searchInput.value = '';
+      this._filter('');
+      this.highlighted = -1;
+    }
+
+    _filter(q) {
+      const t = q.toLowerCase().trim();
+      this.filtered = t ? this.options.filter(o => o.label.toLowerCase().includes(t)) : [...this.options];
+      this.highlighted = this.filtered.length > 0 ? 0 : -1;
+      this._renderList();
+      this._updateSelectAll();
+    }
+
+    _renderList() {
+      this.list.innerHTML = '';
+      if (this.filtered.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'ms-empty';
+        li.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="8" x2="14" y2="14"/></svg>No results found`;
+        this.list.appendChild(li); return;
+      }
+      this.filtered.forEach((opt, i) => {
+        const li = document.createElement('li');
+        li.className = 'ms-option' + (opt.selected ? ' selected' : '');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox'; cb.checked = opt.selected; cb.tabIndex = -1;
+        const tx = document.createElement('span');
+        tx.textContent = opt.label;
+        li.append(cb, tx);
+        li.addEventListener('click', e => { e.stopPropagation(); this._toggleOption(opt.value); });
+        li.addEventListener('mouseenter', () => { this.highlighted = i; this._updateHighlight(); });
+        this.list.appendChild(li);
+      });
+      this._updateHighlight();
+    }
+
+    _toggleOption(value) {
+      const opt = this.options.find(o => o.value === value);
+      if (!opt) return;
+      opt.selected = !opt.selected;
+      const orig = Array.from(this.select.options).find(o => o.value === value);
+      if (orig) orig.selected = opt.selected;
+      this._updateUI();
+      this._updateSelectAll();
+      this._renderList();
+      if (this.config.onChange) this.config.onChange(this.getSelectedValues());
+    }
+
+    _toggleAll() {
+      const allSel = this.filtered.every(o => o.selected);
+      this.filtered.forEach(o => {
+        o.selected = !allSel;
+        const orig = Array.from(this.select.options).find(op => op.value === o.value);
+        if (orig) orig.selected = o.selected;
+      });
+      this._updateUI(); this._updateSelectAll(); this._renderList();
+      if (this.config.onChange) this.config.onChange(this.getSelectedValues());
+    }
+
+    _updateSelectAll() {
+      if (!this.selectAllBox) return;
+      const all  = this.filtered.length > 0 && this.filtered.every(o => o.selected);
+      const some = this.filtered.some(o => o.selected);
+      this.selectAllBox.checked       = all;
+      this.selectAllBox.indeterminate = some && !all;
+    }
+
+    _moveHighlight(dir) {
+      this.highlighted = Math.max(0, Math.min(this.highlighted + dir, this.filtered.length - 1));
+      this._updateHighlight();
+    }
+
+    _selectHighlighted() {
+      if (this.highlighted >= 0 && this.filtered[this.highlighted])
+        this._toggleOption(this.filtered[this.highlighted].value);
+    }
+
+    _updateHighlight() {
+      this.list.querySelectorAll('.ms-option').forEach((el, i) => {
+        el.classList.toggle('highlighted', i === this.highlighted);
+        if (i === this.highlighted) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+    }
+
+    _updateUI() { this._renderTags(); this._updateFooter(); this._syncHidden(); }
+
+    _renderTags() {
+      this.selectedBox.innerHTML = '';
+      const sel = this.options.filter(o => o.selected);
+      if (sel.length === 0) { this.selectedBox.appendChild(this.placeholder); return; }
+      sel.slice(0, this.config.maxTags).forEach(o => this.selectedBox.appendChild(this._makeTag(o)));
+      if (sel.length > this.config.maxTags) {
+        const cnt = document.createElement('span');
+        cnt.className = 'ms-count';
+        cnt.textContent = `+${sel.length - this.config.maxTags} more`;
+        this.selectedBox.appendChild(cnt);
+      }
+    }
+
+    _makeTag(opt) {
+      const tag = document.createElement('div');
+      tag.className = 'ms-tag';
+      tag.innerHTML = `<span>${opt.label}</span><div class="ms-remove">&times;</div>`;
+      tag.querySelector('.ms-remove').addEventListener('click', e => {
+        e.stopPropagation(); this._toggleOption(opt.value);
+      });
+      return tag;
+    }
+
+    _updateFooter() {
+      const n = this.options.filter(o => o.selected).length;
+      this.footer.textContent = `${n} of ${this.options.length} selected`;
+    }
+
+    _syncHidden() {
+      if (this.hiddenInput) this.hiddenInput.value = this.getSelectedValues().join(',');
+    }
+
+    /* ── Public API ── */
+    getSelectedValues() { return this.options.filter(o => o.selected).map(o => o.value); }
+    getSelectedLabels() { return this.options.filter(o => o.selected).map(o => o.label); }
+
+    setValues(values) {
+      this.options.forEach(o => {
+        o.selected = values.includes(o.value);
+        const orig = Array.from(this.select.options).find(op => op.value === o.value);
+        if (orig) orig.selected = o.selected;
+      });
+      this._updateUI(); this._updateSelectAll(); this._renderList();
+      if (this.config.onChange) this.config.onChange(this.getSelectedValues());
+    }
+
+    clear()   { this.setValues([]); }
+    destroy() { this.wrapper.remove(); }
+  }
+
+  /* ── Init ── */
+  document.addEventListener('DOMContentLoaded', () => {
+    // Single selects
+    document.querySelectorAll('.searchable-select').forEach(el => {
+      el._ssInstance = new SearchableSelect(el);
+    });
+
+    // Multi select with live output
+    const liveOutput = document.getElementById('liveOutput');
+    const ms = new MultiSelect('skillsSelect', {
+      placeholder:       'Choose your skills…',
+      searchPlaceholder: 'Search skills…',
+      showSelectAll:     true,
+      maxTags:           3,
+      hiddenInputId:     'skillsSelect-values',
+      onChange: (selected) => {
+        if (selected.length === 0) {
+          liveOutput.classList.remove('has-values');
+          liveOutput.innerHTML = `<span class="lo-label">output →</span><span class="lo-empty">nothing selected yet</span>`;
+        } else {
+          liveOutput.classList.add('has-values');
+          liveOutput.innerHTML = `<span class="lo-label">output →</span><span class="lo-values">[${selected.map(v => `"${v}"`).join(', ')}]</span>`;
+        }
+      }
+    });
+
+    // Expose globally for console testing
+    window.skillsMS = ms;
+  });
+</script>
+</body>
+</html>
